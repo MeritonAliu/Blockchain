@@ -3,6 +3,8 @@ import string
 import time
 from msilib.schema import SelfReg
 
+#from sys import last_traceback
+
 
 class Block():
     def __init__(self, data, previous_hash, index, proof_number, timestamp=None):
@@ -12,18 +14,27 @@ class Block():
         self.index = index
         self.data = data
         self.timestamp = timestamp or time.time()
-
-class BlockChain():
+    def compute_hash(self):
+        string_block = "{}{}{}{}{}".format(self.index, self.proof_number, self.previous_hash, self.data, self.timestamp)
+        return hashlib.sha256(str(self.data).encode('utf-8')).hexdigest()
+class BlockChain(object):
     def __init__(self):
         self.chain = []
-        self.createGenesisBlock("This is the Genesis Block Data")
-    def createGenesisBlock(self,data):
-        genesisblock = Block(data,0000000000000000000000000000000000000000000000000000000000000000,0, 0, time.time())
+        self.nodes = set()
+        self.data = []
+        self.createGenesisBlock()
+
+    def createGenesisBlock(self):
+        self.data = "This is the Genesis Block Data"
+        genesisblock = Block(self.data,0000000000000000000000000000000000000000000000000000000000000000,0, 0, time.time())
         self.chain.append(genesisblock)
         print(genesisblock.timestamp)
+
     def addBlock(self, data):
-        block = Block(data, self.chain[-1].hash, len(self.chain), 3, time.time())
+        time.sleep(0.1)
+        block = Block(data, self.chain[-1].hash, len(self.chain), time.time())
         self.chain.append(block)
+
     def returnHashAndIndex(self):
         #funtion to print details of the block
         for i in range(len(self.chain)):
@@ -34,35 +45,55 @@ class BlockChain():
             print("\n")
         
     #function to validate the block
-    def validateBlock(self, block, previous_hash):
-        """"
+    def validateBlockWithPrevious(self, block):
+        previous_block = self.chain[block.index - 1]
         if previous_block.index + 1 != block.index:
-        print("Block is not valid")
-        return False
+            print("Block index not valid i")
+            return False
+        elif block.timestamp <= previous_block.timestamp:
+            print("Block index not valid t")
+            return False
+        else:
+            print("Block index valid")
+            return True
 
+
+
+""""
+        
         elif previous_block.compute_hash() != block.previous_hash:
-            print("Block is not valid")
+            print("Block index not valid")
             return False
-
-        elif block.timestamp & lt; = previous_block.timestamp:
-            print("Block is not valid")
-            return False
-
-        print("Block is valid")
+        print("Block index valid")
         return True
-        """
-        pass
+    def get_data(self, sender, receiver, amount):
+        self.current_data.append({
+            'sender': sender,
+            'receiver': receiver,
+            'amount': amount
+        })
+        return True
+
+
+    def latest_block(self):
+        return self.chain[-1]
+"""
         
        
 
 blockchain = BlockChain()
 blockchain.addBlock("Person 1 20CHF-> Person 2")
-blockchain.addBlock("Person 1 20CHF-> Person 2")
 blockchain.addBlock("Person 2 20CHF-> Person 3")
 blockchain.addBlock("Person 3 20CHF-> Person 4")
 blockchain.addBlock("Person 4 20CHF-> Person 5")
-blockchain.addBlock("Person 5 20CHF-> Person 6 ")
+#print validate block
+
+
 #blockchain.validateBlock(blockchain.chain[3])
 blockchain.returnHashAndIndex()
+#change hash of chain 1 to 74382748349
+#blockchain.chain[1].hash = "74382748349"
+blockchain.chain[2].index = 45
 
+blockchain.validateBlockWithPrevious(blockchain.chain[4])
 
