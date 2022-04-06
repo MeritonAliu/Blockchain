@@ -58,29 +58,6 @@ class BlockChain(object):
             return True
 
 
-
-""""
-        
-        elif previous_block.compute_hash() != block.previous_hash:
-            print("Block index not valid")
-            return False
-        print("Block index valid")
-        return True
-    def get_data(self, sender, receiver, amount):
-        self.current_data.append({
-            'sender': sender,
-            'receiver': receiver,
-            'amount': amount
-        })
-        return True
-
-
-    def latest_block(self):
-        return self.chain[-1]
-"""
-        
-       
-
 blockchain = BlockChain()
 blockchain.addBlock("Person 1 20CHF-> Person 2")
 blockchain.addBlock("Person 2 20CHF-> Person 3")
@@ -88,12 +65,6 @@ blockchain.addBlock("Person 3 20CHF-> Person 4")
 blockchain.addBlock("Person 4 20CHF-> Person 5")
 #print validate block
 
-
-#blockchain.validateBlock(blockchain.chain[3])
 blockchain.returnHashAndIndex()
-#change hash of chain 1 to 74382748349
-#blockchain.chain[1].hash = "74382748349"
-blockchain.chain[2].index = 45
-
 blockchain.validateBlockWithPrevious(blockchain.chain[4])
 
