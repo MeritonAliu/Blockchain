@@ -1,12 +1,17 @@
 import hashlib
-from re import T
+import json
+import random
 import string
 import time
 from msilib.schema import SelfReg
-import random
-from block import Block
-from wallet import Wallet
+from re import T
 
+from flask import Flask, jsonify, request
+
+from block import Block
+from wallet import classWallet
+
+app = Flask(__name__)
 
 class BlockChain(object):
     def __init__(self):
@@ -14,11 +19,12 @@ class BlockChain(object):
         self.nodes = set()
         self.data = []
         self.wallets = []
+        self.current_transactions = []
         self.createGenesisBlock()
 
     def createGenesisBlock(self):
         self.data = "This is the Genesis Block Data"
-        genesisblock = Block(self.data,0000000000000000000000000000000000000000000000000000000000000000,0, 0, time.time())
+        genesisblock = Block(self.data,"0" * 64 ,0, time.time())
         self.chain.append(genesisblock)
 
     def addBlock(self, data):
@@ -26,31 +32,29 @@ class BlockChain(object):
         block = Block(data, self.chain[-1].hash, len(self.chain), time.time())
         self.chain.append(block)
 
-    def returnHashAndIndex(self):
-        #funtion to print details of the block
-        for i in range(len(self.chain)):
-            print("Block Hash: ", self.chain[i].hash)
-            print("Block Index: ", self.chain[i].index)
-            print("Block Proof Number: ", self.chain[i].proof_number)
-            print("Block Timestamp: ", self.chain[i].timestamp)
-            print("\n")
-        
-    #function to validate the block
-    def validateBlockWithPrevious(self, block):
-        previous_block = self.chain[block.index - 1]
-        if previous_block.index + 1 != block.index:
-            print("Block index not valid i")
-            return False
-        elif block.timestamp <= previous_block.timestamp:
-            print("Block index not valid t")
-            return False
-        else:
-            print("Block index valid")
-            return True
-
-    #function to create wallet
     
+    def validateBlockChain(self):
+        for i in range(1, len(self.chain)):
+            if self.chain[i].index != i:
+                print("Manipulation of index in Block {} ".format(i))
+                return False
+            if self.chain[i-1].hash != self.chain[i].previous_hash:
+                print("Manipulation of hash in Block {} ".format(i))
+                return False
+            if self.chain[i].timestamp <= self.chain[i-1].timestamp:
+                print("Manipulation of timestamp in Block {} ".format(i))
+                return False
+        print("Blockchain is valid")
+        return True
 
+    #function transaction
+    def transaction(self, transaction):
+        if not self.verifyTransaction(transaction):
+            return False
+        sender_wallet = transaction['sender_wallet']
+        sender_wallet['balance'] -= transaction['amount']
+        self.data.append(transaction)
+        return True
 
     #verify transaction
     def verifyTransaction(self, transaction):
@@ -61,7 +65,7 @@ class BlockChain(object):
         return self.verifySignature(public_key, signature, string_transaction)
 
     #function with wallet to create transaction
-    def createTransaction(self, sender_wallet, recipient_address, amount):
+    def createTransacdtion(self, sender_wallet, recipient_address, amount):
         transaction = {
             'sender_wallet': sender_wallet,
             'recipient_address': recipient_address,
@@ -79,7 +83,20 @@ class BlockChain(object):
     def generateSignature(self, transaction, sender_private_key):
         string_transaction = "{}{}{}".format(transaction['recipient_address'], transaction['amount'], transaction['timestamp'])
         return hashlib.sha256(str(string_transaction).encode('utf-8')).hexdigest()
+
+    def new_transaction(self, sender, recipient, amount):
+        self.current_transactions.append({
+            'sender': sender,
+            'recipient': recipient,
+            'amount': amount,
+        })
+        return self.chain[-1].index + 1
+    @property
+    def last_block(self):
+        return self.chain[-1]
     
+
+
 
 
 blockchain = BlockChain()
@@ -87,35 +104,71 @@ blockchain.addBlock("Person 1 20CHF-> Person 2")
 blockchain.addBlock("Person 2 20CHF-> Person 3")
 blockchain.addBlock("Person 3 20CHF-> Person 4")
 blockchain.addBlock("Person 4 20CHF-> Person 5")
-#print validate block
+
+wallet1 = classWallet()
+wallet2 = classWallet()
+blockchain.wallets = [wallet1, wallet2]
+
+for block in blockchain.chain:
+    print(block)
+
+for wallet in blockchain.wallets:
+    print(wallet)
 
 
-#blockchain.validateBlock(blockchain.chain[3])
-##blockchain.returnHashAndIndex()
-#change hash of chain 1 to 74382748349
-#blockchain.chain[1].hash = "74382748349"
-#blockchain.chain[2].index = 45
 
-#blockchain.validateBlockWithPrevious(blockchain.chain[4])
-#blockchain.generatePrivateKey()
+blockchain.validateBlockChain()
+from uuid import uuid4
 
-blockchain.createWallet()
-blockchain.createWallet()
+node_identifier = str(uuid4()).replace('-', '')
 
-#print(blockchain.chain[1].mine(2))
-#print(blockchain.chain[1].validate(blockchain.chain[0].hash))
-#print(blockchain.wallets[0]['public_address'])
-#print(blockchain.wallet)
-#print wallet 1
+@app.route('/mine', methods=['GET'])
+def mine():
 
-blockchain.wallets[0]['balance'] = 20
-print(blockchain.wallets[1]['balance'])
-transaction2 = blockchain.createTransaction(blockchain.wallets[0], blockchain.wallets[1]['public_address'], 20)
-#blockchain.signTransaction(transaction2, blockchain.wallets[0]['private_key'])
-blockchain.verifyTransaction(transaction2)
-blockchain.Transaction(transaction2)
+    # first we have to run the proof of work algorithm to calculate the new proof..
 
-print("ENDE")
-print(blockchain.wallets[1]['balance'])
-#print trancation
-#print(transaction2)
+
+    # we must receive reward for finding the proof
+    blockchain.new_transaction(
+        sender=0,
+        recipient=node_identifier,
+        amount=1,
+    )
+
+    response = {
+        'message': "Forged new block.",
+        'index': block['index'],
+        'transactions': block['transaction'],
+        'previous_hash': block['previous_hash'],
+    }
+    return jsonify(response), 200
+#https://github.com/janfilips/blockchain/tree/eb79d45c292f2abf950822afcc4153f8c6440c4c
+@app.route('/transactions/new', methods=['POST'])
+def new_transaction():
+
+    values = request.get_json()
+    required = ['sender', 'recipient', 'amount']
+
+    if not all(k in values for k in required):
+        return 'Missing values', 400
+
+    # create a new transaction
+    index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
+    response = {'message': f'Transaction will be added to the Block {index}.'}
+
+    return jsonify(response, 200)
+
+@app.route('/chain', methods=['GET'])
+def chain():
+    response = {
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain),
+    }
+    return jsonify(response), 200
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port = 5000)
+
+
+
+

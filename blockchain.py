@@ -44,18 +44,6 @@ class BlockChain(object):
             print("Block Timestamp: ", self.chain[i].timestamp)
             print("\n")
         
-    #function to validate the block
-    def validateBlockWithPrevious(self, block):
-        previous_block = self.chain[block.index - 1]
-        if previous_block.index + 1 != block.index:
-            print("Block index not valid i")
-            return False
-        elif block.timestamp <= previous_block.timestamp:
-            print("Block index not valid t")
-            return False
-        else:
-            print("Block index valid")
-            return True
 
 
 blockchain = BlockChain()
@@ -63,8 +51,8 @@ blockchain.addBlock("Person 1 20CHF-> Person 2")
 blockchain.addBlock("Person 2 20CHF-> Person 3")
 blockchain.addBlock("Person 3 20CHF-> Person 4")
 blockchain.addBlock("Person 4 20CHF-> Person 5")
-#print validate block
 
 blockchain.returnHashAndIndex()
-blockchain.validateBlockWithPrevious(blockchain.chain[4])
+#blockchain.validateBlockWithPrevious(blockchain.chain[4])
+
 

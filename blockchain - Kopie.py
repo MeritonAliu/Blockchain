@@ -1,18 +1,19 @@
 import hashlib
-from re import T
+import json
+import random
 import string
 import time
 from msilib.schema import SelfReg
-import random
+from re import T
 
-#from sys import last_traceback
+from flask import Flask, jsonify
 
+app = Flask(__name__)
 
 class Block():
-    def __init__(self, data, previous_hash, index, proof_number, timestamp=None):
+    def __init__(self, data, previous_hash, index, timestamp=None):
         self.nonce = -1
         self.previous_hash = previous_hash
-        self.proof_number = proof_number
         self.index = index
         self.data = data
         difficulty = 2
@@ -21,7 +22,7 @@ class Block():
         self.hash = self.mine(difficulty)
 
     def compute_hash(self):
-        string_block = "{}{}{}{}{}".format(self.nonce, self.index, self.proof_number, self.previous_hash, self.data, self.timestamp)
+        string_block = "{}{}{}{}{}".format(self.nonce, self.index,self.previous_hash, self.data, self.timestamp)
         return hashlib.sha256(str(string_block).encode('utf-8')).hexdigest()
     
     #found
@@ -38,7 +39,7 @@ class Block():
                 return self.hash
     
     #validate block
-    def validate(self, previous_hash):
+    def validateBlock(self, previous_hash):
         if self.previous_hash != previous_hash:
             return False
         if self.hash != self.compute_hash():
@@ -56,7 +57,7 @@ class BlockChain(object):
 
     def createGenesisBlock(self):
         self.data = "This is the Genesis Block Data"
-        genesisblock = Block(self.data,0000000000000000000000000000000000000000000000000000000000000000,0, 0, time.time())
+        genesisblock = Block(self.data,0000000000000000000000000000000000000000000000000000000000000000,0, time.time())
         self.chain.append(genesisblock)
 
     def addBlock(self, data):
@@ -67,26 +68,28 @@ class BlockChain(object):
     def returnHashAndIndex(self):
         #funtion to print details of the block
         for i in range(len(self.chain)):
-            print("Block Hash: ", self.chain[i].hash)
-            print("Block Index: ", self.chain[i].index)
-            print("Block Proof Number: ", self.chain[i].proof_number)
-            print("Block Timestamp: ", self.chain[i].timestamp)
+            print("Previous Hash:       ", self.chain[i].previous_hash)
+            print("Block Hash:          ", self.chain[i].hash)
+            print("Block Index:         ", self.chain[i].index)
+            print("Block Proof Number:  ", self.chain[i].nonce)
+            print("Block Timestamp:     ", self.chain[i].timestamp)
             print("\n")
         
-    #function to validate the block
-    def validateBlockWithPrevious(self, block):
-        previous_block = self.chain[block.index - 1]
-        if previous_block.index + 1 != block.index:
-            print("Block index not valid i")
-            return False
-        elif block.timestamp <= previous_block.timestamp:
-            print("Block index not valid t")
-            return False
-        else:
-            print("Block index valid")
-            return True
+    def validateBlockChain(self):
+        for i in range(1, len(self.chain)):
+            if self.chain[i].index != i:
+                print("Manipulation of index in Block {} ".format(i))
+                return False
+            if self.chain[i-1].hash != self.chain[i].previous_hash:
+                print("Manipulation of hash in Block {} ".format(i))
+                return False
+            if self.chain[i].timestamp <= self.chain[i-1].timestamp:
+                print("Manipulation of timestamp in Block {} ".format(i))
+                return False
+        print("Blockchain is valid")
+        return True
 
-    #function to create wallet
+
     
     def createWallet(self):
         
@@ -109,6 +112,7 @@ class BlockChain(object):
         print("Public Address:  ", wallet['public_address'])
 
         self.wallets.append(wallet)
+
         return wallet
     
     def generatePrivateKey(self):
@@ -154,7 +158,8 @@ class BlockChain(object):
     def generateSignature(self, transaction, sender_private_key):
         string_transaction = "{}{}{}".format(transaction['recipient_address'], transaction['amount'], transaction['timestamp'])
         return hashlib.sha256(str(string_transaction).encode('utf-8')).hexdigest()
-    
+
+
 
 
 blockchain = BlockChain()
@@ -162,6 +167,26 @@ blockchain.addBlock("Person 1 20CHF-> Person 2")
 blockchain.addBlock("Person 2 20CHF-> Person 3")
 blockchain.addBlock("Person 3 20CHF-> Person 4")
 blockchain.addBlock("Person 4 20CHF-> Person 5")
+
+blockchain.returnHashAndIndex()
+
+blockchain.createWallet()
+blockchain.createWallet()
+
+blockchain.validateBlockChain()
+#create transaction
+transaction = blockchain.createTransaction(blockchain.wallets[0], blockchain.wallets[1]['public_address'], 20)
+
+
+@app.route('/chain', methods=['GET'])
+def get_chain():
+    chain_data = []
+    for block in blockchain.chain:
+        chain_data.append(block.__dict__)
+    return json.dumps({"length": len(chain_data),
+                       "chain": chain_data})
+#app.run(debug=True, port=5000)
+
 #print validate block
 
 
@@ -174,23 +199,23 @@ blockchain.addBlock("Person 4 20CHF-> Person 5")
 #blockchain.validateBlockWithPrevious(blockchain.chain[4])
 #blockchain.generatePrivateKey()
 
-blockchain.createWallet()
-blockchain.createWallet()
-
 #print(blockchain.chain[1].mine(2))
 #print(blockchain.chain[1].validate(blockchain.chain[0].hash))
 #print(blockchain.wallets[0]['public_address'])
 #print(blockchain.wallet)
 #print wallet 1
 
-blockchain.wallets[0]['balance'] = 20
-print(blockchain.wallets[1]['balance'])
-transaction2 = blockchain.createTransaction(blockchain.wallets[0], blockchain.wallets[1]['public_address'], 20)
+#blockchain.wallets[0]['balance'] = 20
+#print(blockchain.wallets[1]['balance'])
+#transaction2 = blockchain.createTransaction(blockchain.wallets[0], blockchain.wallets[1]['public_address'], 20)
 #blockchain.signTransaction(transaction2, blockchain.wallets[0]['private_key'])
-blockchain.verifyTransaction(transaction2)
-blockchain.Transaction(transaction2)
+#blockchain.verifyTransaction(transaction2)
+#blockchain.Transaction(transaction2)
 
-print("ENDE")
-print(blockchain.wallets[1]['balance'])
+#print("ENDE")
+#print(blockchain.wallets[1]['balance'])
 #print trancation
 #print(transaction2)
+
+
+
