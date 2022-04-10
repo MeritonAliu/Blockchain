@@ -6,9 +6,6 @@ import time
 from msilib.schema import SelfReg
 from re import T
 
-from flask import Flask, jsonify
-
-app = Flask(__name__)
 
 class Block():
     def __init__(self, data, previous_hash, index, timestamp=None):
@@ -18,14 +15,11 @@ class Block():
         self.data = data
         difficulty = 2
         self.timestamp = timestamp or time.time()
-        self.hash = self.compute_hash()
         self.hash = self.mine(difficulty)
 
     def compute_hash(self):
         string_block = "{}{}{}{}{}".format(self.nonce, self.index,self.previous_hash, self.data, self.timestamp)
         return hashlib.sha256(str(string_block).encode('utf-8')).hexdigest()
-    
-    #found
     
     def mine(self, difficulty):
         found = False
@@ -103,16 +97,13 @@ class BlockChain(object):
         wallet['public_address'] = self.generatePublicAdress(wallet['public_key'])
         #create a balance
         wallet['balance'] = 0
-        #creat a list of transactions
-        #print all
+        #print a list of transactions
         print("\n")
         print("Wallet Created:")
         print("Private Key:     ", wallet['private_key'])
         print("Public Key:      ", wallet['public_key'])
         print("Public Address:  ", wallet['public_address'])
-
         self.wallets.append(wallet)
-
         return wallet
     
     def generatePrivateKey(self):
@@ -122,46 +113,6 @@ class BlockChain(object):
     def generatePublicAdress(self, public_key):
         return hashlib.sha256(str(public_key).encode('utf-8')).hexdigest()
     
-    #function transaction
-    def transaction(self, transaction):
-        if not self.verifyTransaction(transaction):
-            return False
-        sender_wallet = transaction['sender_wallet']
-        sender_wallet['balance'] -= transaction['amount']
-        self.data.append(transaction)
-        return True
-
-    #verify transaction
-    def verifyTransaction(self, transaction):
-        #public_key = self.wallets[transaction['sender_wallet']]['public_key']
-        public_key = self.wallets[0]['public_key']
-        signature = transaction['signature']
-        string_transaction = "{}{}{}".format(transaction['recipient_address'], transaction['amount'], transaction['timestamp'])
-        return self.verifySignature(public_key, signature, string_transaction)
-
-    #function with wallet to create transaction
-    def createTransaction(self, sender_wallet, recipient_address, amount):
-        transaction = {
-            'sender_wallet': sender_wallet,
-            'recipient_address': recipient_address,
-            'amount': amount,
-            'timestamp': time.time()
-        }
-        return transaction
-    
-    #function to sign transaction
-    def signTransaction(self, transaction, sender_private_key):
-        transaction['signature'] = self.generateSignature(transaction, sender_private_key)
-        return transaction
-
-    #function to generate signature
-    def generateSignature(self, transaction, sender_private_key):
-        string_transaction = "{}{}{}".format(transaction['recipient_address'], transaction['amount'], transaction['timestamp'])
-        return hashlib.sha256(str(string_transaction).encode('utf-8')).hexdigest()
-
-
-
-
 blockchain = BlockChain()
 blockchain.addBlock("Person 1 20CHF-> Person 2")
 blockchain.addBlock("Person 2 20CHF-> Person 3")
@@ -172,50 +123,3 @@ blockchain.returnHashAndIndex()
 
 blockchain.createWallet()
 blockchain.createWallet()
-
-blockchain.validateBlockChain()
-#create transaction
-transaction = blockchain.createTransaction(blockchain.wallets[0], blockchain.wallets[1]['public_address'], 20)
-
-
-@app.route('/chain', methods=['GET'])
-def get_chain():
-    chain_data = []
-    for block in blockchain.chain:
-        chain_data.append(block.__dict__)
-    return json.dumps({"length": len(chain_data),
-                       "chain": chain_data})
-#app.run(debug=True, port=5000)
-
-#print validate block
-
-
-#blockchain.validateBlock(blockchain.chain[3])
-##blockchain.returnHashAndIndex()
-#change hash of chain 1 to 74382748349
-#blockchain.chain[1].hash = "74382748349"
-#blockchain.chain[2].index = 45
-
-#blockchain.validateBlockWithPrevious(blockchain.chain[4])
-#blockchain.generatePrivateKey()
-
-#print(blockchain.chain[1].mine(2))
-#print(blockchain.chain[1].validate(blockchain.chain[0].hash))
-#print(blockchain.wallets[0]['public_address'])
-#print(blockchain.wallet)
-#print wallet 1
-
-#blockchain.wallets[0]['balance'] = 20
-#print(blockchain.wallets[1]['balance'])
-#transaction2 = blockchain.createTransaction(blockchain.wallets[0], blockchain.wallets[1]['public_address'], 20)
-#blockchain.signTransaction(transaction2, blockchain.wallets[0]['private_key'])
-#blockchain.verifyTransaction(transaction2)
-#blockchain.Transaction(transaction2)
-
-#print("ENDE")
-#print(blockchain.wallets[1]['balance'])
-#print trancation
-#print(transaction2)
-
-
-
