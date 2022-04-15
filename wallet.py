@@ -1,8 +1,8 @@
-import hashlib
+#import hashlib
 import random
 import string
 from platform import win32_edition
-
+#testline
 
 class classWallet():
     def __init__(self, ):
