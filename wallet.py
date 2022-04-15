@@ -2,7 +2,7 @@ import hashlib
 import random
 import string
 from platform import win32_edition
-
+#test
 
 class classWallet():
     def __init__(self, ):
