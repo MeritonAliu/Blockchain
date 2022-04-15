@@ -23,7 +23,6 @@ class classWallet():
         
     def __str__(self) -> str:
         return "\nPrivate key: {}\nPublic key:  {}\nAddress:     {}\nBalance:     {}\n".format(self.private_key, self.public_key, self.address, self.balance)
-        #return "\nPrivate key: {}\nPublic key:  {}\nAddress:     {}\nBalance:     {}\n".format(self.wallet['private_key'],self.wallet['public_key'], self.wallet['address'], self.wallet['balance'])
        
     def generatePrivateKey(self):
         return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(32))
