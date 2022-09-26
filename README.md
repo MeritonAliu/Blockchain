@@ -1,8 +1,8 @@
-# EFM32Core
-EFM32 Core library for I2C, TEMP100, Display and GPIOs.
+# blockchain-py
+my own blockchain with programm
 
 ### Description
-description
+- does not work because of the transaction stuff.
 
 ### Installing & Usage
 1. cd "your_path"
