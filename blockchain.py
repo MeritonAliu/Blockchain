@@ -114,11 +114,7 @@ class BlockChain(object):
     
 blockchain = BlockChain()
 blockchain.addBlock("Person 1 20CHF-> Person 2")
-blockchain.addBlock("Person 2 20CHF-> Person 3")
-blockchain.addBlock("Person 3 20CHF-> Person 4")
-blockchain.addBlock("Person 4 20CHF-> Person 5")
 
 blockchain.returnHashAndIndex()
 
-blockchain.createWallet()
 blockchain.createWallet()
