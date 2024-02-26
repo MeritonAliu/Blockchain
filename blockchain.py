@@ -3,7 +3,6 @@ import json
 import random
 import string
 import time
-from msilib.schema import SelfReg
 from re import T
 
 
