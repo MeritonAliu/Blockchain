@@ -104,11 +104,11 @@ class BlockChain(object):
         return hashlib.sha256(str(private_key).encode('utf-8')).hexdigest()
     def generatePublicAdress(self, public_key):
         return hashlib.sha256(str(public_key).encode('utf-8')).hexdigest()
-    
 
 ## main code
 if __name__ == "__main__":
     blockchain = BlockChain()
-    blockchain.addBlock("Person 1 20CHF-> Person 2")
+    blockchain.addBlock("Hello this is my first block in the blockchain")
+    blockchain.addBlock("And this the second")
     blockchain.returnHashAndIndex()
     blockchain.createWallet()
