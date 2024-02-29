@@ -1,10 +1,7 @@
 import hashlib
-import json
 import random
 import string
 import time
-from re import T
-
 
 class Block():
     def __init__(self, data, previous_hash, index, timestamp=None):
@@ -38,7 +35,6 @@ class Block():
         if self.hash != self.compute_hash():
             return False
         return True
-
 
 class BlockChain(object):
     def __init__(self):
@@ -82,10 +78,7 @@ class BlockChain(object):
         print("Blockchain is valid")
         return True
 
-
-    
     def createWallet(self):
-        
         #create a wallet
         wallet = {}
         #create a private key
@@ -112,9 +105,10 @@ class BlockChain(object):
     def generatePublicAdress(self, public_key):
         return hashlib.sha256(str(public_key).encode('utf-8')).hexdigest()
     
-blockchain = BlockChain()
-blockchain.addBlock("Person 1 20CHF-> Person 2")
 
-blockchain.returnHashAndIndex()
-
-blockchain.createWallet()
+## main code
+if __name__ == "__main__":
+    blockchain = BlockChain()
+    blockchain.addBlock("Person 1 20CHF-> Person 2")
+    blockchain.returnHashAndIndex()
+    blockchain.createWallet()

@@ -4,7 +4,9 @@ my own blockchain with programm
 
 ## Description
 
-- does not work because of the transaction stuff.
+Creates a blockhain, which can contain blocks with messages.
+The blockhain can return also its hash and index.
+Wallets can be created.
 
 ## Installing & Usage
 
