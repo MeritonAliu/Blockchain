@@ -15,7 +15,7 @@ if __name__ == "__main__":
         blockchain.wallets[0]['private_key']
     )
     blockchain.addBlock([transaction])
-    Transaction.verifyTransaction(transaction)
     
-    print(blockchain.getBalance(blockchain.wallets[1]['public_key']))
-    print(blockchain.getBalance(blockchain.wallets[0]['public_key']))
+    print("\nBalance first Wallet", blockchain.getBalance(blockchain.wallets[0]['public_key']))
+    print("\nBalance second Wallet", blockchain.getBalance(blockchain.wallets[1]['public_key']))
+    blockchain.returnHashAndIndex()

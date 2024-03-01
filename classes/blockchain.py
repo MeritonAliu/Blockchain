@@ -33,18 +33,21 @@ class BlockChain(object):
                 if transaction.pubAddrReceiver == public_address:
                     balance += transaction.amount
         return balance
+    
+    def isTransactionValid(self, transaction):
+        sender_balance = self.getBalance(transaction.pubAddrSender)
+        return sender_balance >= transaction.amount and self.verifyTransaction(transaction)
 
     def addBlock(self, transactions):
-        if all(self.verifyTransaction(transaction) for transaction in transactions):
+        if all(self.isTransactionValid(transaction) for transaction in transactions):
             time.sleep(0.1)
             previous_hash = self.chain[-1].hash if self.chain else '0' * 64
-            block = Block(transactions, self.chain[-1].hash, len(self.chain), time.time())
+            block = Block(transactions, previous_hash, len(self.chain), time.time())
             self.chain.append(block)
         else:
-            print("Invalid transaction in the block.")
+            print("\nOne or more transactions are invalid due to insufficient balance or verification failure.")
 
     def returnHashAndIndex(self):
-        #funtion to print details of the block
         for i in range(len(self.chain)):
             print("Previous Hash:       ", self.chain[i].previous_hash)
             print("Block Hash:          ", self.chain[i].hash)

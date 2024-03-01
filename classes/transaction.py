@@ -2,13 +2,13 @@ import time
 import ecdsa
 
 class Transaction:
-    def __init__(self, pubAddrSender, pubAddrReceiver, amount, privAddrSender):
+    def __init__(self, pubAddrSender, pubAddrReceiver, amount, privAddrSender=None):
         self.pubAddrSender = pubAddrSender
         self.pubAddrReceiver = pubAddrReceiver
         self.privAddrSender = privAddrSender
         self.amount = amount
         self.timestamp = time.time()
-        self.signature = self.signTransaction()
+        self.signature = self.signTransaction() if privAddrSender else "genesis_signature"
         self.printAll()
 
     def printAll(self): # only for debugging
