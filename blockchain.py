@@ -130,6 +130,7 @@ class Transaction:
         self.timestamp = time.time()
         self.signature = self.signTransaction()
         self.printAll()
+        self.signature = self.signTransaction()
 
     def printAll(self): # only for debugging
         print("\nTransaction created: ")
@@ -145,6 +146,18 @@ class Transaction:
         message = f"{self.pubAddrSender}{self.pubAddrReceiver}{self.amount}{self.timestamp}".encode()
         signature = private_key.sign(message)
         return signature.hex
+
+    @staticmethod
+    def verifyTransaction(transaction):
+        message = f"{transaction.pubAddrSender}{transaction.pubAddrReceiver}{transaction.amount}{transaction.timestamp}".encode()
+        public_key_bytes = bytes.fromhex(transaction.pubAddrSender)
+        public_key = ecdsa.VerifyingKey.from_string(public_key_bytes, curve=ecdsa.SECP256k1)
+        signature = bytes.fromhex(transaction.signature)
+        try:
+            return public_key.verify(signature, message)
+        except ecdsa.BadSignatureError:
+            return False
+        return 0
 
 ## main code
 if __name__ == "__main__":
