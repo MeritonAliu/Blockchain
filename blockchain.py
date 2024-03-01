@@ -2,6 +2,8 @@ import hashlib
 import random
 import string
 import time
+import ecdsa
+import binascii
 
 class Block():
     def __init__(self, data, previous_hash, index, timestamp=None):
@@ -99,11 +101,50 @@ class BlockChain(object):
         return wallet
     
     def generatePrivateKey(self):
-        return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(32))
-    def generatePublicKey(self, private_key):
-        return hashlib.sha256(str(private_key).encode('utf-8')).hexdigest()
+        # Generate a new ECDSA private key
+        private_key = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
+        # Convert the private key to its hexadecimal string representation for storage
+        private_key_hex = private_key.to_string().hex()
+        return private_key_hex
+    
+    def generatePublicKey(self, private_key_hex):
+        # Convert the hex private key back to a bytes object
+        private_key_bytes = bytes.fromhex(private_key_hex)
+        # Create a SigningKey object from the bytes
+        private_key = ecdsa.SigningKey.from_string(private_key_bytes, curve=ecdsa.SECP256k1)
+        # Derive the public key
+        public_key = private_key.get_verifying_key()
+        # Convert the public key to hex format for easy storage and use
+        public_key_hex = public_key.to_string().hex()
+        return public_key_hex
+    
     def generatePublicAdress(self, public_key):
-        return hashlib.sha256(str(public_key).encode('utf-8')).hexdigest()
+        return hashlib.sha256(public_key.encode('utf-8')).hexdigest()
+
+class Transaction:
+    def __init__(self, pubAddrSender, pubAddrReceiver, amount, privAddrSender):
+        self.pubAddrSender = pubAddrSender
+        self.pubAddrReceiver = pubAddrReceiver
+        self.privAddrSender = privAddrSender
+        self.amount = amount
+        self.timestamp = time.time()
+        self.signature = self.signTransaction()
+        self.printAll()
+
+    def printAll(self): # only for debugging
+        print("\nTransaction created: ")
+        print("Sender:    ", self.pubAddrSender)
+        print("Receiver:  ", self.pubAddrReceiver)
+        print("Amount:    ", self.amount)
+        print("Timestamp: ", self.timestamp)
+        print("Signature: ", self.signature)
+    
+    def signTransaction(self):
+        private_key_bytes = bytes.fromhex(self.privAddrSender)
+        private_key = ecdsa.SigningKey.from_string(private_key_bytes, curve=ecdsa.SECP256k1)
+        message = f"{self.pubAddrSender}{self.pubAddrReceiver}{self.amount}{self.timestamp}".encode()
+        signature = private_key.sign(message)
+        return signature.hex
 
 ## main code
 if __name__ == "__main__":
@@ -112,3 +153,12 @@ if __name__ == "__main__":
     blockchain.addBlock("And this the second")
     blockchain.returnHashAndIndex()
     blockchain.createWallet()
+    blockchain.createWallet()
+    print(blockchain.wallets[1]['public_key'])
+    transaction = Transaction(
+        blockchain.wallets[0]['public_key'],
+        blockchain.wallets[1]['public_key'],
+        10,
+        blockchain.wallets[0]['private_key']
+    )
+    print(blockchain.wallets[1]['balance'])
