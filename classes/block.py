@@ -2,17 +2,17 @@ import hashlib
 import time
 
 class Block():
-    def __init__(self, data, previous_hash, index, timestamp=None):
+    def __init__(self, transactions, previous_hash, index, timestamp=None):
         self.nonce = -1
         self.previous_hash = previous_hash
         self.index = index
-        self.data = data
+        self.transactions = transactions
         difficulty = 2
         self.timestamp = timestamp or time.time()
         self.hash = self.mine(difficulty)
 
     def compute_hash(self):
-        string_block = "{}{}{}{}{}".format(self.nonce, self.index,self.previous_hash, self.data, self.timestamp)
+        string_block = "{}{}{}{}{}".format(self.nonce, self.index,self.previous_hash, self.transactions, self.timestamp)
         return hashlib.sha256(str(string_block).encode('utf-8')).hexdigest()
     
     def mine(self, difficulty):

@@ -2,24 +2,46 @@ import hashlib
 import time
 import ecdsa
 from classes.block import Block
+from classes.transaction import Transaction
 
 class BlockChain(object):
     def __init__(self):
         self.chain = []
         self.nodes = set()
-        self.data = []
         self.wallets = []
         self.createGenesisBlock()
 
     def createGenesisBlock(self):
-        self.data = "This is the Genesis Block Data"
-        genesisblock = Block(self.data,0000000000000000000000000000000000000000000000000000000000000000,0, time.time())
+        genesis_transactions = []
+        genesisblock = Block(
+            genesis_transactions,
+            "0" * 64,
+            0, 
+            time.time()
+        )
         self.chain.append(genesisblock)
 
-    def addBlock(self, data):
-        time.sleep(0.1)
-        block = Block(data, self.chain[-1].hash, len(self.chain), time.time())
-        self.chain.append(block)
+    def verifyTransaction(self, transaction):
+        return Transaction.verifyTransaction(transaction)
+    
+    def getBalance(self, public_address):
+        balance = 0
+        for block in self.chain:
+            for transaction in block.transactions:
+                if transaction.pubAddrSender == public_address:
+                    balance -= transaction.amount
+                if transaction.pubAddrReceiver == public_address:
+                    balance += transaction.amount
+        return balance
+
+    def addBlock(self, transactions):
+        if all(self.verifyTransaction(transaction) for transaction in transactions):
+            time.sleep(0.1)
+            previous_hash = self.chain[-1].hash if self.chain else '0' * 64
+            block = Block(transactions, self.chain[-1].hash, len(self.chain), time.time())
+            self.chain.append(block)
+        else:
+            print("Invalid transaction in the block.")
 
     def returnHashAndIndex(self):
         #funtion to print details of the block
