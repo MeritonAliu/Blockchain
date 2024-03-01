@@ -5,7 +5,7 @@ from classes.block import Block
 from classes.transaction import Transaction
 
 class BlockChain(object):
-    MINING_REWARD = 50  # The reward amount for adding a block
+    MINING_REWARD = 0.5 # The reward amount for adding a block
     def __init__(self):
         self.chain = []
         self.nodes = set()
@@ -39,12 +39,25 @@ class BlockChain(object):
         sender_balance = self.getBalance(transaction.pubAddrSender)
         return sender_balance >= transaction.amount and self.verifyTransaction(transaction)
 
-    def addBlock(self, transactions):
+    def createRewardTransaction(self, miner_address):
+        reward_transaction = Transaction(
+                    pubAddrSender="0" * 64,  # A special sender address for rewards
+                    pubAddrReceiver=miner_address,
+                    amount=self.MINING_REWARD,
+                    signature="Reward"  # Optionally, use a special signature
+                )
+        return reward_transaction
+
+    def addBlock(self, transactions, miner_address):
         if all(self.isTransactionValid(transaction) for transaction in transactions):
+            reward_transaction = self.createRewardTransaction(miner_address)
+            transactions_with_reward = transactions + [reward_transaction]
+
             time.sleep(0.1)
             previous_hash = self.chain[-1].hash if self.chain else '0' * 64
-            block = Block(transactions, previous_hash, len(self.chain), time.time())
+            block = Block(transactions_with_reward, previous_hash, len(self.chain), time.time())
             self.chain.append(block)
+            print("\nBlock successfully mined and added to the blockchain.")
         else:
             print("\nOne or more transactions are invalid due to insufficient balance or verification failure.")
 

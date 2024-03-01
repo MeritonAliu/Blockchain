@@ -2,7 +2,7 @@ import time
 import ecdsa
 
 class Transaction:
-    def __init__(self, pubAddrSender, pubAddrReceiver, amount, privAddrSender=None):
+    def __init__(self, pubAddrSender, pubAddrReceiver, amount, signature=None, privAddrSender=None):
         self.pubAddrSender = pubAddrSender
         self.pubAddrReceiver = pubAddrReceiver
         self.privAddrSender = privAddrSender
@@ -19,8 +19,8 @@ class Transaction:
         print("Timestamp: ", self.timestamp)
         print("Signature: ", self.signature)
     
-    def signTransaction(self):
-        private_key_bytes = bytes.fromhex(self.privAddrSender)
+    def signTransaction(self, private_key):
+        private_key_bytes = bytes.fromhex(private_key)
         private_key = ecdsa.SigningKey.from_string(private_key_bytes, curve=ecdsa.SECP256k1)
         message = f"{self.pubAddrSender}{self.pubAddrReceiver}{self.amount}{self.timestamp}".encode()
         signature = private_key.sign(message)
@@ -31,10 +31,15 @@ class Transaction:
         message = f"{transaction.pubAddrSender}{transaction.pubAddrReceiver}{transaction.amount}{transaction.timestamp}".encode()
         public_key_bytes = bytes.fromhex(transaction.pubAddrSender)
         public_key = ecdsa.VerifyingKey.from_string(public_key_bytes, curve=ecdsa.SECP256k1)
-        signature = bytes.fromhex(transaction.signature)
+        signature = bytes.fromhex(transaction.signature) if transaction.signature != "genesis_signature" else None
         try:
-            print("\nTranscation verify")
-            return public_key.verify(signature, message)
+            if transaction.signature != "genesis_signature":
+                public_key.verify(signature, message)
+                print("\nTransaction verify")
+                return True
+            else:
+                print("\nGenesis transaction verified")
+                return True
         except ecdsa.BadSignatureError:
-            print("\nTranscation could not verify")
+            print("\nTransaction could not verify")
             return False
