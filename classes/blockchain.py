@@ -5,6 +5,7 @@ from classes.block import Block
 from classes.transaction import Transaction
 
 class BlockChain(object):
+    MINING_REWARD = 50  # The reward amount for adding a block
     def __init__(self):
         self.chain = []
         self.nodes = set()

@@ -10,6 +10,7 @@ class Block():
         difficulty = 2
         self.timestamp = timestamp or time.time()
         self.hash = self.mine(difficulty)
+        self.nonce = 0
 
     def compute_hash(self):
         string_block = "{}{}{}{}{}".format(self.nonce, self.index,self.previous_hash, self.transactions, self.timestamp)
