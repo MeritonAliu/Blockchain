@@ -113,3 +113,10 @@ class BlockChain(object):
     def generatePublicAdress(self, public_key):
         return hashlib.sha256(public_key.encode('utf-8')).hexdigest()
     
+    def get_total_coin_supply(self):
+        initial_supply = 0  # Adjust this value based on your actual genesis block configuration
+        reward_per_block = self.MINING_REWARD
+        total_mined_blocks = len(self.chain)
+        total_coin_supply = initial_supply + (reward_per_block * total_mined_blocks)
+        return total_coin_supply
+    

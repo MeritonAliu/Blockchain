@@ -2,7 +2,7 @@ import hashlib
 import time
 
 class Block():
-    def __init__(self, transactions, previous_hash, index, timestamp=None):
+    def __init__(self, transactions, previous_hash, index, timestamp=None, coinbase_transaction=None):
         self.nonce = -1
         self.previous_hash = previous_hash
         self.index = index
@@ -10,6 +10,7 @@ class Block():
         difficulty = 2
         self.timestamp = timestamp or time.time()
         self.hash = self.mine(difficulty)
+        self.coinbase_transaction = coinbase_transaction
 
     def compute_hash(self):
         string_block = "{}{}{}{}{}".format(self.nonce, self.index,self.previous_hash, self.transactions, self.timestamp)
