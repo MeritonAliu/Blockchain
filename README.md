@@ -1,19 +1,37 @@
 # blockchain-py
 
-my own blockchain with programm
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+This is my simulation of a blockchain written in python.
+My goal is it to deepen my understanding in python and learning how cryptocurrenicies and its blockchains work.
 
 ## Description
 
-Creates a blockhain, which can contain blocks with messages.
-The blockhain can return also its hash and index.
-Wallets can be created.
+- Creates a blockhain, which can contain blocks with messages.
+- The blockhain can return also its hash and index.
+- Wallets can be created.
+- Transactions can be created
 
 ## Installing & Usage
 
-1. cd "your_path"
-2. git clone <https://github.com/MeritonAliu/blockchain-py>
-3. run the blockchain.py file with python
+- git clone <https://github.com/MeritonAliu/blockchain-py>
+- run the main.py file with python
+
+## ToDo
+
+- Make transactions work, send and recieve amount of money
 
 ## Authors
 
 [@MeritonAliu](https://github.com/MeritonAliu)
+
+## Disclaimer
+
+This is just a learning projects for me and should not be considered as a real cryptocurrencie or blockchain.
+
+## Resources
+
+- [Ch3: The Bitcoin white paper - Transactions](https://academy.bsvblockchain.org/blog/the-bitcoin-whitepaper-transactions)
+- [The paper that first introduced Bitcoin](https://bitcoin.org/en/bitcoin-paper)
+
+## License
