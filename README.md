@@ -11,6 +11,7 @@ My goal is it to deepen my understanding in python and learning how cryptocurren
 - The blockhain can return also its hash and index.
 - Wallets can be created.
 - Transactions can be created
+- Reward for mining
 
 ## Installing & Usage
 
@@ -19,7 +20,10 @@ My goal is it to deepen my understanding in python and learning how cryptocurren
 
 ## ToDo
 
-- Make transactions work, send and recieve amount of money
+- [x] Make transactions work, send and recieve amount of money
+- [ ] Create coinbase transaction work for first miner as initial reward
+- [ ] Store blockchain into file, read from it when starting
+- [ ] Create frontend / app
 
 ## Authors
 

@@ -31,4 +31,4 @@ if __name__ == "__main__":
     print("\nBalance first Wallet", blockchain.getBalance(blockchain.wallets[0]['public_key']))
     print("\nBalance second Wallet", blockchain.getBalance(blockchain.wallets[1]['public_key']))
 
-    print(blockchain.get_total_coin_supply())
+    blockchain.get_total_coin_supply()

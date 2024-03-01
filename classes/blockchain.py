@@ -118,5 +118,8 @@ class BlockChain(object):
         reward_per_block = self.MINING_REWARD
         total_mined_blocks = len(self.chain)
         total_coin_supply = initial_supply + (reward_per_block * total_mined_blocks)
+        print("\nTotal coin supply: ", total_coin_supply)
         return total_coin_supply
     
+    def create_coinbase_transaction(self, recipient_address):
+        return Transaction(None, recipient_address, self.MINING_REWARD, "coinbase_signature")
