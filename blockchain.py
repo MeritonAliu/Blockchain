@@ -1,9 +1,6 @@
 import hashlib
-import random
-import string
 import time
 import ecdsa
-import binascii
 
 class Block():
     def __init__(self, data, previous_hash, index, timestamp=None):
@@ -81,17 +78,11 @@ class BlockChain(object):
         return True
 
     def createWallet(self):
-        #create a wallet
         wallet = {}
-        #create a private key
         wallet['private_key'] = self.generatePrivateKey()
-        #create a public key
         wallet['public_key'] = self.generatePublicKey(wallet['private_key'])
-        #create a public address
         wallet['public_address'] = self.generatePublicAdress(wallet['public_key'])
-        #create a balance
         wallet['balance'] = 0
-        #print a list of transactions
         print("\n")
         print("Wallet Created:")
         print("Private Key:     ", wallet['private_key'])
@@ -101,20 +92,14 @@ class BlockChain(object):
         return wallet
     
     def generatePrivateKey(self):
-        # Generate a new ECDSA private key
         private_key = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
-        # Convert the private key to its hexadecimal string representation for storage
         private_key_hex = private_key.to_string().hex()
         return private_key_hex
     
     def generatePublicKey(self, private_key_hex):
-        # Convert the hex private key back to a bytes object
         private_key_bytes = bytes.fromhex(private_key_hex)
-        # Create a SigningKey object from the bytes
         private_key = ecdsa.SigningKey.from_string(private_key_bytes, curve=ecdsa.SECP256k1)
-        # Derive the public key
         public_key = private_key.get_verifying_key()
-        # Convert the public key to hex format for easy storage and use
         public_key_hex = public_key.to_string().hex()
         return public_key_hex
     
@@ -153,10 +138,10 @@ class Transaction:
         public_key = ecdsa.VerifyingKey.from_string(public_key_bytes, curve=ecdsa.SECP256k1)
         signature = bytes.fromhex(transaction.signature)
         try:
-            print("\n transcation verify")
+            print("\nTranscation verify")
             return public_key.verify(signature, message)
         except ecdsa.BadSignatureError:
-            print("\n transcation could not verify")
+            print("\nTranscation could not verify")
             return False
 
 ## main code
